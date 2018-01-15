@@ -38,21 +38,12 @@ class TransformGeometriesTo2D(ToolboxProcess):
         outputFilePath = gvsig.getTempFile("result_geometries",".shp")
     elif not outputFilePath.endswith('.shp'):
         outputFilePath = outputFilePath+".shp"
-    process(studyAreaNameVector,outputFilePath)
+    process(self, studyAreaNameVector,outputFilePath)
     return True
     
-def transformPointTo3D(iVertex,nv=None):
-    if nv==None:
-        nv = GeometryLocator.getGeometryManager().create(iVertex.getGeometryType().getType(),Geometry.SUBTYPES.GEOM3D)
-    for d in range(0,iVertex.getDimension()):
-        try:
-            nv.setCoordinateAt(d,iVertex.getCoordinateAt(d))
-        except:
-            nv.setCoordinateAt(d,0)
-    return nv
     
 def transformPointTo2D(iVertex,nv=None):
-    if nv==None:
+    if nv is None:
         nv = GeometryLocator.getGeometryManager().create(iVertex.getGeometryType().getType(),Geometry.SUBTYPES.GEOM2D)
     #print "Ivertex: ", iVertex
     for d in range(0,iVertex.getDimension()):
@@ -63,7 +54,7 @@ def transformPointTo2D(iVertex,nv=None):
     #print "NV: ", nv, " from ", iVertex
     return nv
     
-def process(store,outputFilePath=None):
+def process(selfStatus,store,outputFilePath=None):
     # SELECT METHOD TO TRANSFORM POINTS
     method = "transformPointTo2D" #None
     
@@ -72,11 +63,7 @@ def process(store,outputFilePath=None):
     fset = store.getFeatureSet()
     nsch = gvsig.createFeatureType(store.getDefaultFeatureType())
     
-    if method == "transformPointTo3D":
-        transformMethod = transformPointTo3D
-        subtype = geom.D3
-        #nsch.get("GEOMETRY").setGeometryType(nsch.get("GEOMETRY").getGeometryType(), subtype)
-    elif method == "transformPointTo2D":
+    if method == "transformPointTo2D":
         transformMethod = transformPointTo2D
         subtype = geom.D2
     else:
@@ -84,12 +71,14 @@ def process(store,outputFilePath=None):
         subtype = nsch.get("GEOMETRY").getGeometrySubType()
         
     nsch.get("GEOMETRY").setGeometryType(nsch.get("GEOMETRY").getGeometryType(), subtype)
-    if outputFilePath==None:
+    if outputFilePath is None:
         outputFilePath = gvsig.getTempFile("result_geometries",".shp")
     ns = gvsig.createShape(nsch,outputFilePath)
     ns.edit()
     store = ns.getFeatureStore()
+    selfStatus.setRangeOfValues(0,fset.getSize())
     for f in fset:
+        selfStatus.next()
         fg = f.getDefaultGeometry()
         #print "Default geometry: ", fg,
         if subtype == None: 
@@ -107,13 +96,16 @@ def process(store,outputFilePath=None):
         nf = store.createNewFeature(f)
         nf.set("GEOMETRY", nm)
         store.insert(nf)
+        if selfStatus.isCanceled() == True:
+            ns.finishEditing()
+            return True
     ns.finishEditing()
     gvsig.currentView().addLayer(ns)
     
 def insertVertexFromGeometryInGeometry(iPol,np,transformMethod=None):
     geomManager = GeometryLocator.getGeometryManager()
     if isinstance(iPol, Point):
-        if transformMethod==None:
+        if transformMethod is None:
             for d in range(0,iPol.getDimension()):
                 np.setCoordinateAt(d,iPol.getCoordinateAt(d))
             return
@@ -123,7 +115,7 @@ def insertVertexFromGeometryInGeometry(iPol,np,transformMethod=None):
     
     for v in range(0, iPol.getNumVertices()):
         iVertex = iPol.getVertex(v)
-        if transformMethod==None:
+        if transformMethod is None:
             nv = geomManager.create(iVertex.getGeometryType().getType(),iVertex.getGeometryType().getSubType())
             for d in range(0,iVertex.getDimension()):
                 nv.setCoordinateAt(d,iVertex.getCoordinateAt(d))
