@@ -19,16 +19,18 @@ from es.unex.sextante.additionalInfo import AdditionalInfoVectorLayer
 #from gvsig import LOGGER_WARN
 #from es.unex.sextante.additionalInfo import AdditionalInfo
 from org.gvsig.geoprocess.lib.api import GeoProcessLocator
-
+from org.gvsig.tools import ToolsLocator
 
 class TransformGeometriesTo2D(ToolboxProcess):
   def defineCharacteristics(self):
-    self.setName("Transformar geometrias a 2D")
-    self.setGroup("Transformar")
+    i18nManager = ToolsLocator.getI18nManager()
+    
+    self.setName(i18nManager.getTranslation("_Transform_to_2D_geometries"))
+    self.setGroup(i18nManager.getTranslation("_Transform"))
     params = self.getParameters()
     self.setUserCanDefineAnalysisExtent(False)
-    params.addInputVectorLayer("studyAreaNameVector","Capa a transformar", AdditionalInfoVectorLayer.SHAPE_TYPE_ANY,True)
-    params.addFilepath("outputFilePath","Capa de salida",False,False,True,[".shp"])
+    params.addInputVectorLayer("studyAreaNameVector",i18nManager.getTranslation("_Transform_Layer"), AdditionalInfoVectorLayer.SHAPE_TYPE_ANY,True)
+    params.addFilepath("outputFilePath",i18nManager.getTranslation("_Output_Layer"),False,False,True,[".shp"])
 
   def processAlgorithm(self):
     params = self.getParameters()
