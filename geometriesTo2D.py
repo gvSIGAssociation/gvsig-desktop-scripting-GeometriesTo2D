@@ -1,6 +1,11 @@
 # encoding: utf-8
 
 import gvsig
+
+from gvsig.uselib import use_plugin
+
+use_plugin("org.gvsig.geoprocess.app.mainplugin")
+
 import os
 from gvsig import geom
 from org.gvsig.fmap.geom import Geometry
