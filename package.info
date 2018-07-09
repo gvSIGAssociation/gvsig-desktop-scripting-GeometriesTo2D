@@ -1,11 +1,11 @@
 #
-#Tue Jun 05 12:41:44 CEST 2018
+#Mon Jul 09 17:33:48 CEST 2018
 owner=gvSIG Association
 code=GeometriesTo2D
 java-version=j1_7
 official=true
 type=Script
-version=1.0.0-4
+version=1.0.0-5
 state=testing
 operating-system=all
 dependencies=
@@ -16,6 +16,6 @@ model-version=1.0.1
 categories=Geoprocess
 description=It gets a vectorial layer and transform it to a shapefile with 2D geometries
 owner-url=
-buildNumber=4
-gvSIG-version=2.4.0
+buildNumber=5
+gvSIG-version=2.4.1
 name=Transform Geometries to 2D
